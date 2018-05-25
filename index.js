@@ -57,6 +57,12 @@ function loadLocaleFiles(locales, buildDir, ext, delimiter) {
   return oldLocaleMaps
 }
 
+const compare = (a, b) => {
+  const la = a.toString().toLowerCase()
+  const lb = b.toString().toLowerCase()
+  return la > lb ? 1 : la < lb ? -1 : 0
+}
+
 module.exports = (locales, pattern, buildDir, opts) => {
   if (!Array.isArray(locales)) {
     return Promise.reject(
@@ -103,8 +109,11 @@ module.exports = (locales, pattern, buildDir, opts) => {
             : merge(newLocaleMaps[locale], oldLocaleMaps[locale])
 
         const fomattedLocaleMap = opts.flat
-          ? sortKeys(localeMap, { deep: true })
-          : unflatten(sortKeys(localeMap), { delimiter })
+          ? sortKeys(localeMap, { deep: true, compare })
+          : sortKeys(unflatten(localeMap, { delimiter }), {
+              deep: true,
+              compare
+            })
 
         const fn = isJson(opts.format) ? writeJson : writeYaml
 
